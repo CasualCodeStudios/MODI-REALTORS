@@ -1,0 +1,1276 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Modi Realtors — Architecture & Design</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,600;1,700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+
+<style>
+*, ::before, ::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+    --gold: #c9a84c;
+    --gold-light: #e8c97a;
+    --gold-dark: #a8893a;
+    --gold-glow: rgba(201,168,76,0.18);
+    --gold-mid: rgba(201,168,76,0.38);
+    --navy: #0d1b2a;
+    --navy-mid: #1a2e44;
+    --navy-light: #243b55;
+    --bg: #f4f3f0;
+    --bg-warm: #edecea;
+    --bg-card: #ffffff;
+    --text: #2c2a27;
+    --text-light: #6b6762;
+    --border: rgba(13,27,42,0.10);
+    --border-strong: rgba(13,27,42,0.18);
+    --border-gold: rgba(201,168,76,0.30);
+}
+
+html { scroll-behavior: smooth; }
+
+body {
+    background: var(--bg);
+    font-family: 'DM Sans', sans-serif;
+    color: var(--text);
+    overflow-x: hidden;
+}
+
+/* ══ CURSOR ACCENT */
+/* ══ SIDEBAR */
+.sidebar {
+    position: fixed; top: 0; right: -100%;
+    padding: 4.5rem 2.5rem;
+    width: 300px; height: 100vh;
+    background: var(--navy);
+    z-index: 1000;
+    transition: .5s cubic-bezier(.77,0,.175,1);
+    border-left: 1px solid var(--border-gold);
+    box-shadow: -20px 0 60px rgba(13,27,42,0.3);
+}
+.sidebar.active { right: 0; }
+.sidebar .nav-links { display: flex; flex-direction: column; gap: 28px; margin-top: 2.5rem; }
+.sidebar .nav-links li {
+    font-size: 1.2rem; color: rgba(255,255,255,0.55);
+    list-style: none; cursor: pointer;
+    letter-spacing: 0.06em; font-weight: 300;
+    font-family: 'DM Sans', sans-serif;
+    transition: color .3s;
+}
+.sidebar .nav-links li:hover { color: var(--gold); }
+.close-btn { position: absolute; left: 18px; top: 18px; width: 28px; height: 28px; cursor: pointer; }
+.close-btn span {
+    position: absolute; top: 50%; left: 50%;
+    width: 100%; height: 1.5px;
+    background: rgba(255,255,255,0.4); border-radius: 1px;
+    transform: translate(-50%,-50%) rotate(45deg);
+}
+.close-btn span:last-child { transform: translate(-50%,-50%) rotate(-45deg); }
+
+/* ══ HERO */
+.hero {
+    position: relative; min-height: 100vh;
+    display: flex; flex-direction: column;
+    justify-content: center; align-items: center;
+    gap: 0; padding: 6rem 2rem 12rem;
+}
+.backgroundImageHolder {
+    position: fixed; width: 100%; height: 100%;
+    top: 0; left: 0;
+    background:
+        linear-gradient(160deg, rgba(13,27,42,0.72) 0%, rgba(13,27,42,0.85) 60%, rgba(13,27,42,0.92) 100%),
+        url("https://images.unsplash.com/photo-1486325212027-8081e485255e?q=80&w=1470&auto=format&fit=crop") no-repeat center/cover;
+    z-index: -1;
+}
+
+/* gold grain overlay */
+.backgroundImageHolder::after {
+    content: '';
+    position: absolute; inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+    opacity: 0.35; pointer-events: none;
+}
+
+/* ── HEADER */
+.mainHeader {
+    position: fixed; top: 0; left: 0; right: 0;
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 1.6rem 3.5rem; z-index: 100;
+    border-bottom: 1px solid rgba(201,168,76,0.12);
+    background: rgba(13,27,42,0.3);
+}
+.logo-wrap { display: flex; flex-direction: column; gap: 0;
+    width: 85px; height: 60px; background: #ffffff96;
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border-radius: 0 20px 0 20px;
+    padding: 4px;
+ }
+.logo-wrap img{
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.mainHeader nav {
+    padding: 0.45rem 1.4rem; border-radius: 40px;
+    backdrop-filter: blur(14px);
+    background: rgba(255,255,255,0.07);
+    border: 1px solid rgba(201,168,76,0.2);
+}
+.nav-links { display: flex; gap: 32px; }
+.nav-links li {
+    position: relative; font-family: 'DM Sans', sans-serif;
+    list-style: none; font-size: 0.82rem; font-weight: 400;
+    color: rgba(255,255,255,0.62); letter-spacing: 0.07em; cursor: pointer;
+    transition: .3s ease; text-transform: uppercase;
+}
+.nav-links li::after {
+    position: absolute; content: "";
+    height: 1px; bottom: -3px; left: 0; right: 0;
+    background: var(--gold); transform: scaleX(0);
+    transform-origin: center; transition: .3s ease;
+}
+.nav-links li:hover::after { transform: scaleX(1); }
+.nav-links li:hover { color: var(--gold-light); }
+
+.nav-cta {
+    padding: 0.5rem 1.4rem; border-radius: 40px;
+    background: var(--gold); color: var(--navy);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.78rem; font-weight: 600;
+    letter-spacing: 0.08em; text-transform: uppercase;
+    cursor: pointer; border: none;
+    transition: .3s ease;
+}
+.nav-cta:hover { background: var(--gold-light); transform: translateY(-1px); }
+
+.menu {
+    display: none; flex-direction: column; gap: 6px;
+    width: 36px; cursor: pointer; padding: 6px 4px;
+    border: 1.5px solid transparent; transition: .3s ease;
+    background: #00000085;
+    backdrop-filter: blur(12px);
+    border-radius: 8px;
+}
+.menu:hover{
+    border-color: #fff;
+}
+.menu div { width: 100%; height: 3px; background: rgba(255, 255, 255, 0.999); border-radius: 1px; transition: .3s ease; }
+
+/* ── HERO CONTENT */
+.heroContent { text-align: center; max-width: 820px; }
+
+.heroEyebrow {
+    display: inline-flex; align-items: center; gap: 10px;
+    font-size: 0.7rem; font-weight: 500;
+    letter-spacing: 0.28em; text-transform: uppercase;
+    color: var(--gold); margin-bottom: 1rem; z-index: 110;
+}
+.heroEyebrow::before, .heroEyebrow::after {
+    content: ''; display: block;
+    width: 32px; height: 1px; background: var(--gold-mid);
+}
+
+.heroTitle {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: clamp(3.2rem, 6.5vw, 6.8rem);
+    color: #fff; font-weight: 700;
+    line-height: 1.04; letter-spacing: -0.01em; margin-bottom: 1.5rem;
+}
+.heroTitle em { font-style: italic; color: var(--gold); }
+
+/* gold underline accent */
+.heroTitle span.ul {
+    position: relative; display: inline-block;
+}
+.heroTitle span.ul::after {
+    content: '';
+    position: absolute; bottom: 4px; left: 0; right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, var(--gold), transparent);
+}
+
+.heroTxt {
+    color: rgba(255,255,255,0.6); font-size: clamp(0.95rem, 1.4vw, 1.1rem);
+    font-weight: 300; line-height: 1.85; max-width: 520px; margin: 0 auto;
+}
+.heroCta {
+    display: flex; justify-content: center; gap: 14px; margin-top: 2.6rem;
+    flex-wrap: wrap;
+}
+.btn {
+    padding: 0.82rem 2rem; border-radius: 4px;
+    font-size: 0.82rem; font-family: 'DM Sans', sans-serif;
+    font-weight: 500; letter-spacing: 0.1em;
+    cursor: pointer; transition: .3s ease; border: none;
+    text-transform: uppercase;
+}
+.btn-primary {
+    background: var(--gold); color: var(--navy);
+    border: 1px solid var(--gold);
+    box-shadow: 0 0 32px rgba(201,168,76,0.25);
+}
+.btn-primary:hover {
+    background: var(--gold-light); border-color: var(--gold-light);
+    transform: translateY(-2px); box-shadow: 0 8px 32px rgba(201,168,76,0.4);
+}
+.btn-secondary {
+    background: transparent; color: rgba(255,255,255,0.75);
+    border: 1px solid rgba(255,255,255,0.25);
+}
+.btn-secondary:hover { background: rgba(255,255,255,0.1); color: #fff; border-color: rgba(255,255,255,0.5); }
+
+/* ── BOTTOM CARDS */
+.bottomCards {
+    position: absolute; bottom: -100px;
+    left: 50%; transform: translateX(-50%);
+    width: min(980px, 92vw);
+    display: grid; grid-template-columns: repeat(4, 1fr);
+    gap: 8px; z-index: 2;
+    border: none;
+    border-radius: 6px; overflow: hidden;
+}
+.card {
+    background: var(--bg-card);
+    padding: 2rem 1.6rem;
+    text-align: left;
+    opacity: 0; transform: translateY(30px);
+    transition: 0.55s ease;
+    border-right: 1px solid var(--border);
+    border-radius: 18px;
+    position: relative;
+}
+.card::before {
+    content: '';
+    position: absolute; bottom: 0; left: 0; right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, var(--gold), transparent);
+    transform: scaleX(0); transform-origin: center;
+    transition: .4s ease;
+}
+.card:hover::before { transform: scaleX(1); }
+.card.visible { opacity: 1; transform: translateY(0); }
+.card:nth-child(1) { transition-delay: 0s; }
+.card:nth-child(2) { transition-delay: 0.1s; }
+.card:nth-child(3) { transition-delay: 0.2s; }
+.card:nth-child(4) { transition-delay: 0.3s; }
+.card:hover { background: var(--navy); }
+.card:hover h3 { color: var(--gold); }
+.card:hover p { color: rgba(255,255,255,0.5); }
+.card:hover .card-num { background-color: var(--bg-card); transform: rotate(-0.05turn) translateY(-8px); }
+.card-num {
+   width: 48px;
+   height: 48px;
+   margin-bottom: 8px;
+   padding: 0 2px;
+   border-radius: 8px;
+   transform-origin: right center;
+   transition: .5s ease;
+
+}
+.card-num img {
+   width: 100%;
+   height: 100%;
+}
+.card h3 {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.1rem; font-weight: 600;
+    color: var(--navy); margin-bottom: 0.5rem;
+    transition: .3s ease; letter-spacing: 0.02em;
+}
+.card p { color: var(--text-light); font-size: 0.8rem; line-height: 1.7; transition: .3s ease; }
+
+/* ══ SERVICES */
+.servicesSection {
+    background: var(--bg);
+    padding: 12rem 5vw 8rem;
+}
+.section-eyebrow {
+    display: inline-flex; align-items: center; gap: 8px;
+    font-size: 0.68rem; font-weight: 500;
+    letter-spacing: 0.24em; text-transform: uppercase;
+    color: var(--gold); margin-bottom: 1.1rem;
+}
+.section-eyebrow::before {
+    content: ''; display: block;
+    width: 24px; height: 1px; background: var(--gold-mid);
+}
+.section-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: clamp(2.4rem, 4.2vw, 4.2rem);
+    color: var(--navy); font-weight: 700;
+    line-height: 1.08; margin-bottom: 1.2rem; letter-spacing: -0.01em;
+}
+.section-intro {
+    font-size: 0.95rem; color: var(--text-light);
+    font-weight: 400; line-height: 1.8; max-width: 480px;
+}
+
+.services-header {
+    display: flex; justify-content: space-between;
+    align-items: flex-end; max-width: 1200px; margin: 0 auto 4rem;
+}
+
+.services-grid {
+    display: grid; grid-template-columns: repeat(2, 1fr);
+    gap: 2px; max-width: 1200px; margin: 0 auto;
+    border: 1px solid var(--border); border-radius: 6px;
+    overflow: hidden; box-shadow: 0 4px 32px rgba(13,27,42,0.06);
+}
+.service-tile {
+    background: var(--bg-card);
+    padding: 3.5rem 3rem;
+    position: relative; overflow: hidden;
+    border-right: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+    cursor: pointer;
+    transition: background .35s ease;
+}
+.service-tile:nth-child(2n) { border-right: none; }
+.service-tile:nth-child(3), .service-tile:nth-child(4) { border-bottom: none; }
+
+.service-tile::after {
+    content: '';
+    position: absolute; inset: 0;
+    background: linear-gradient(135deg, rgba(201,168,76,0.05) 0%, transparent 60%);
+    opacity: 0; transition: opacity .35s ease;
+}
+.service-tile:hover::after { opacity: 1; }
+.service-tile:hover { background: #faf9f6; }
+
+.st-number {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 4rem; font-weight: 700;
+    color: rgba(13,27,42,0.04);
+    position: absolute; top: 1.5rem; right: 2rem;
+    line-height: 1; letter-spacing: -0.02em;
+    transition: color .35s ease;
+}
+.service-tile:hover .st-number { color: rgba(201,168,76,0.12); }
+
+.st-icon {
+    width: 52px; height: 52px; border-radius: 8px;
+    border: 1px solid var(--border-gold);
+    background: var(--gold-glow);
+    display: flex; align-items: center; justify-content: center;
+    margin-bottom: 1.8rem;
+    transition: background .35s, border-color .35s;
+}
+.service-tile:hover .st-icon { background: var(--navy); border-color: var(--navy); }
+.st-icon svg { width: 24px; height: 24px; stroke: var(--gold); fill: none; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; transition: stroke .35s; }
+.service-tile:hover .st-icon svg { stroke: var(--gold); }
+
+.st-tag {
+    font-size: 0.65rem; letter-spacing: 0.22em;
+    text-transform: uppercase; color: var(--gold);
+    font-weight: 500; margin-bottom: 0.7rem;
+}
+.service-tile h3 {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.75rem; font-weight: 600;
+    color: var(--navy); line-height: 1.2;
+    margin-bottom: 1rem; letter-spacing: -0.01em;
+}
+.service-tile p { color: var(--text-light); font-size: 0.88rem; line-height: 1.8; max-width: 380px; }
+
+.st-arrow {
+    display: inline-flex; align-items: center; gap: 6px;
+    margin-top: 1.8rem; font-size: 0.78rem; font-weight: 500;
+    letter-spacing: 0.1em; text-transform: uppercase;
+    color: var(--gold); text-decoration: none;
+    transition: gap .3s ease;
+}
+.st-arrow:hover { gap: 12px; }
+.st-arrow svg { width: 14px; height: 14px; stroke: var(--gold); fill: none; stroke-width: 2; }
+
+/* ══ WHY CHOOSE US — VERTICAL NAV */
+.whyChooseUs {
+    background: var(--navy);
+    padding: 9rem 5vw 8rem;
+    position: relative; overflow: hidden;
+}
+.whyChooseUs::before {
+    content: '';
+    position: absolute; top: -160px; right: -100px;
+    width: 560px; height: 560px; border-radius: 50%;
+    background: radial-gradient(circle, rgba(201,168,76,0.07) 0%, transparent 70%);
+    pointer-events: none;
+}
+
+.wcu-sidenav {
+    position: fixed; right: 24px; top: 50%;
+    transform: translateY(-50%);
+    z-index: 200; display: flex;
+    flex-direction: column; gap: 10px;
+    transition: opacity 0.4s ease;
+}
+.wcu-sidenav.hidden { opacity: 0; pointer-events: none; }
+.wcu-nav-item {
+    position: relative; display: flex;
+    align-items: center; justify-content: center;
+    width: 44px; height: 44px; border-radius: 50%;
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(201,168,76,0.25);
+    cursor: pointer;
+    transition: background .3s, border-color .3s, transform .3s, box-shadow .3s;
+    box-shadow: 0 2px 12px rgba(13,27,42,0.2);
+}
+.wcu-nav-item svg {
+    width: 18px; height: 18px; stroke: rgba(201,168,76,0.5);
+    fill: none; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round;
+    transition: stroke .3s; pointer-events: none; flex-shrink: 0;
+}
+.wcu-nav-item:hover, .wcu-nav-item.active {
+    background: var(--gold); border-color: var(--gold);
+    transform: scale(1.1);
+    box-shadow: 0 6px 20px rgba(201,168,76,0.4);
+}
+.wcu-nav-item:hover svg, .wcu-nav-item.active svg { stroke: var(--navy); }
+.wcu-nav-item .wcu-tooltip {
+    position: absolute; right: calc(100% + 12px); top: 50%;
+    transform: translateY(-50%) translateX(6px);
+    background: var(--gold); color: var(--navy);
+    font-size: 0.72rem; font-weight: 600;
+    letter-spacing: 0.06em; white-space: nowrap;
+    padding: 0.35rem 0.8rem; border-radius: 4px;
+    pointer-events: none; opacity: 0;
+    transition: opacity .2s ease, transform .2s ease;
+}
+.wcu-nav-item .wcu-tooltip::after {
+    content: ''; position: absolute;
+    left: 100%; top: 50%; transform: translateY(-50%);
+    border: 5px solid transparent;
+    border-left-color: var(--gold);
+}
+.wcu-nav-item:hover .wcu-tooltip { opacity: 1; transform: translateY(-50%) translateX(0); }
+
+.wcu-section-header { max-width: 1200px; margin: 0 auto 4rem; }
+.wcu-section-header .section-title { color: #fff; }
+.wcu-section-header .section-eyebrow { color: var(--gold); }
+.wcu-section-header .section-intro { color: rgba(255,255,255,0.45); }
+
+.wcuContent {
+    display: grid; grid-template-columns: 1fr 1fr;
+    gap: 5rem; align-items: center;
+    max-width: 1200px; margin: 0 auto;
+}
+.wcuImageHolder { position: relative; height: 500px; }
+.wcuImage {
+    position: absolute; width: 80%; height: 95%;
+    object-fit: cover; border-radius: 4px;
+    transition: all 0.55s cubic-bezier(0.4,0,0.2,1);
+}
+.wcuImage:nth-child(1) { top:50%;left:28%;transform:translate(-50%,-50%);z-index:3;opacity:0.3;filter:brightness(0.6) saturate(0.4); }
+.wcuImage:nth-child(2) { top:42%;left:46%;transform:translate(-50%,-50%);z-index:2;opacity:0.18;filter:brightness(0.5) saturate(0.3); }
+.wcuImage:nth-child(3) { top:58%;left:38%;transform:translate(-50%,-50%);z-index:1;opacity:0.1;filter:brightness(0.4); }
+
+.wcuImageHolder[data-active="1"] .wcuImage:nth-child(1) { z-index:5;opacity:1;filter:none;top:50%;left:50%;transform:translate(-50%,-50%) scale(1.02);box-shadow:0 24px 60px rgba(13,27,42,0.45), 0 0 0 1px var(--border-gold); }
+.wcuImageHolder[data-active="1"] .wcuImage:nth-child(2) { z-index:3;opacity:0.35;filter:brightness(0.65) saturate(0.4);top:44%;left:24%;transform:translate(-50%,-50%); }
+.wcuImageHolder[data-active="1"] .wcuImage:nth-child(3) { z-index:2;opacity:0.18;filter:brightness(0.5);top:60%;left:32%;transform:translate(-50%,-50%); }
+
+.wcuImageHolder[data-active="2"] .wcuImage:nth-child(2) { z-index:5;opacity:1;filter:none;top:50%;left:50%;transform:translate(-50%,-50%) scale(1.02);box-shadow:0 24px 60px rgba(13,27,42,0.45), 0 0 0 1px var(--border-gold); }
+.wcuImageHolder[data-active="2"] .wcuImage:nth-child(1) { z-index:3;opacity:0.35;filter:brightness(0.65) saturate(0.4);top:38%;left:26%;transform:translate(-50%,-50%); }
+.wcuImageHolder[data-active="2"] .wcuImage:nth-child(3) { z-index:2;opacity:0.18;filter:brightness(0.5);top:60%;left:34%;transform:translate(-50%,-50%); }
+
+.wcuImageHolder[data-active="3"] .wcuImage:nth-child(3) { z-index:5;opacity:1;filter:none;top:50%;left:50%;transform:translate(-50%,-50%) scale(1.02);box-shadow:0 24px 60px rgba(13,27,42,0.45), 0 0 0 1px var(--border-gold); }
+.wcuImageHolder[data-active="3"] .wcuImage:nth-child(1) { z-index:3;opacity:0.35;filter:brightness(0.65) saturate(0.4);top:36%;left:28%;transform:translate(-50%,-50%); }
+.wcuImageHolder[data-active="3"] .wcuImage:nth-child(2) { z-index:2;opacity:0.18;filter:brightness(0.5);top:60%;left:24%;transform:translate(-50%,-50%); }
+
+.wcuImageHolder[data-active="4"] .wcuImage:nth-child(1) { z-index:5;opacity:1;filter:none;top:50%;left:50%;transform:translate(-50%,-50%) scale(1.02);box-shadow:0 24px 60px rgba(13,27,42,0.45), 0 0 0 1px var(--border-gold); }
+.wcuImageHolder[data-active="4"] .wcuImage:nth-child(2) { z-index:3;opacity:0.35;filter:brightness(0.65) saturate(0.4);top:40%;left:26%;transform:translate(-50%,-50%); }
+.wcuImageHolder[data-active="4"] .wcuImage:nth-child(3) { z-index:2;opacity:0.18;filter:brightness(0.5);top:62%;left:36%;transform:translate(-50%,-50%); }
+
+.wcuTextPanel { display:none;opacity:0;transform:translateY(18px);transition:opacity .5s ease,transform .5s ease; }
+.wcuTextPanel.active { display:block;opacity:1;transform:translateY(0); }
+.wcuTextPanel.entering { opacity:0;transform:translateY(18px); }
+
+.wcuTextTag {
+    display: inline-block; font-size: 0.65rem;
+    letter-spacing: 0.2em; text-transform: uppercase;
+    color: var(--gold); font-weight: 500; margin-bottom: 1rem;
+    text-decoration: underline; text-decoration-color: var(--gold-mid);
+    text-underline-offset: 4px;
+}
+.wcuTextPanel h3 {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: clamp(1.9rem, 2.8vw, 2.8rem);
+    color: #fff; font-weight: 600;
+    line-height: 1.18; margin-bottom: 1.2rem; letter-spacing: -0.01em;
+}
+.wcuTextPanel p { color: rgba(255,255,255,0.5); font-size: 0.9rem; line-height: 1.85; margin-bottom: 1rem; }
+.wcuFeatureList { list-style: none; margin-top: 1.5rem; display: flex; flex-direction: column; gap: 12px; }
+.wcuFeatureList li {
+    display: flex; align-items: flex-start; gap: 12px;
+    color: rgba(255,255,255,0.65); font-size: 0.86rem; line-height: 1.5;
+}
+.wcuFeatureList li::before {
+    content: ''; display: inline-block;
+    width: 5px; height: 5px; min-width: 5px;
+    border-radius: 50%; background: var(--gold); margin-top: 8px;
+}
+
+/* ══ ABOUT */
+.aboutSection {
+    background: var(--bg-warm);
+    padding: 9rem 5vw 8rem;
+    border-top: 1px solid var(--border);
+}
+.aboutInner {
+    display: grid; grid-template-columns: 1fr 1fr;
+    gap: 7rem; align-items: center; max-width: 1200px; margin: 0 auto;
+}
+.aboutText { max-width: 520px; }
+.aboutIntro {
+    font-size: 1.06rem; color: var(--text);
+    font-weight: 400; line-height: 1.85; margin-top: 1.5rem; margin-bottom: 2rem;
+}
+.aboutBody { font-size: 0.9rem; color: var(--text-light); line-height: 1.85; margin-top: 1.2rem; }
+
+.aboutStats {
+    display: flex; align-items: center;
+    padding: 1.6rem 0;
+    border-top: 1px solid var(--border-gold);
+    border-bottom: 1px solid var(--border-gold);
+    margin: 2rem 0;
+}
+.stat { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 4px; }
+.stat-num {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 2.6rem; font-weight: 700;
+    color: var(--gold); line-height: 1;
+}
+.stat-label { font-size: 0.68rem; letter-spacing: 0.14em; text-transform: uppercase; color: var(--text-light); font-weight: 500; }
+.stat-divider { width: 1px; height: 40px; background: var(--border-gold); }
+
+/* Gold Button */
+.button {
+    all: unset; display: inline-flex; align-items: center;
+    gap: 8px; position: relative;
+    padding: 0.75em 2.2rem;
+    border: 1px solid var(--gold);
+    border-radius: 4px; color: var(--navy);
+    font-size: 0.88rem; font-weight: 600;
+    letter-spacing: 0.08em; text-transform: uppercase;
+    cursor: pointer; overflow: hidden;
+    transition: color 300ms; user-select: none;
+    background: var(--gold);
+    font-family: 'DM Sans', sans-serif;
+}
+.button:hover { color: var(--navy); }
+.button::after, .button::before {
+    content: ''; position: absolute;
+    width: 9em; aspect-ratio: 1;
+    background: rgba(255,255,255,0.25); border-radius: 50%;
+    transition: transform 500ms;
+}
+.button::before { left: 0; transform: translateX(-100%); z-index: 1; }
+.button::after { right: 0; transform: translateX(100%); z-index: 1; }
+.button:hover:before { transform: translateX(0); }
+.button:hover:after { transform: translateX(0); }
+.button span { z-index: 5; position: relative; }
+
+/* ── ABOUT VISUAL */
+.aboutVisual {
+    position: relative; height: 560px;
+    display: flex; align-items: center; justify-content: center;
+}
+.about-img-main {
+    width: 75%; height: 85%;
+    object-fit: cover; border-radius: 4px;
+    box-shadow: 0 32px 80px rgba(13,27,42,0.18);
+    position: relative; z-index: 2;
+    border: 1px solid var(--border-gold);
+}
+.about-img-accent {
+    position: absolute; bottom: 30px; right: 0;
+    width: 45%; height: 48%;
+    object-fit: cover; border-radius: 4px; z-index: 3;
+    border: 4px solid var(--bg-warm);
+    box-shadow: 0 12px 40px rgba(13,27,42,0.15);
+}
+.about-gold-line {
+    position: absolute; top: 50px; left: 0;
+    width: 3px; height: 60%;
+    background: linear-gradient(180deg, transparent, var(--gold), transparent);
+    border-radius: 2px;
+}
+.about-badge {
+    position: absolute; top: 40px; right: 20px;
+    width: 100px; height: 100px; z-index: 4;
+    border-radius: 50%;
+    background: var(--navy);
+    border: 1px solid var(--border-gold);
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    gap: 2px;
+    box-shadow: 0 8px 32px rgba(13,27,42,0.25);
+}
+.about-badge .badge-num {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.8rem; font-weight: 700; color: var(--gold); line-height: 1;
+}
+.about-badge .badge-label {
+    font-size: 0.55rem; letter-spacing: 0.14em;
+    text-transform: uppercase; color: rgba(255,255,255,0.45);
+    text-align: center; line-height: 1.4;
+}
+
+/* ══ DIVIDER SLIDER */
+.dividerSlider { position: relative; width: 100vw; height: 540px; overflow: hidden; background: #000; }
+.dividerSlider-track { display: flex; width: 100%; height: 100%; transition: transform 0.75s cubic-bezier(0.77,0,0.175,1); }
+.dividerSlide { min-width: 100%; height: 100%; position: relative; flex-shrink: 0; }
+.dividerSlide img { width: 100%; height: 100%; object-fit: cover; display: block; filter: brightness(0.45); }
+.slide-caption {
+    position: absolute; bottom: 90px;
+    left: 50%; transform: translateX(-50%);
+    text-align: center; z-index: 2;
+}
+.slide-caption span {
+    display: block; font-family: 'Cormorant Garamond', serif;
+    font-size: clamp(1.9rem, 3.8vw, 3.5rem);
+    font-weight: 600; color: #fff; letter-spacing: 0.04em; margin-bottom: 0.5rem;
+}
+.slide-caption p { font-size: 0.85rem; color: rgba(255,255,255,0.5); font-weight: 300; letter-spacing: 0.1em; text-transform: uppercase; }
+.slide-caption .slide-line {
+    width: 40px; height: 1px; background: var(--gold);
+    margin: 0.8rem auto 0;
+}
+.slider-dots {
+    position: absolute; bottom: 28px; left: 50%; transform: translateX(-50%);
+    display: flex; gap: 8px; z-index: 10;
+}
+.dot {
+    width: 6px; height: 6px; border-radius: 50%;
+    background: rgba(255,255,255,0.25);
+    border: none; cursor: pointer; padding: 0; transition: all .35s ease;
+}
+.dot.active { background: var(--gold); width: 22px; border-radius: 3px; }
+.slider-arrow {
+    position: absolute; top: 50%; transform: translateY(-50%);
+    width: 44px; height: 44px; border-radius: 50%;
+    background: rgba(201,168,76,0.15);
+    border: 1px solid rgba(201,168,76,0.3);
+    backdrop-filter: blur(10px);
+    cursor: pointer; display: flex; align-items: center; justify-content: center;
+    z-index: 10; transition: background .3s, border-color .3s;
+}
+.slider-arrow:hover { background: var(--gold); border-color: var(--gold); }
+.slider-arrow svg { width: 18px; height: 18px; stroke: #fff; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.slider-arrow-prev { left: 24px; }
+.slider-arrow-next { right: 24px; }
+
+/* ══ TESTIMONIALS */
+.testimonials { background: var(--bg); padding: 9rem 5vw 7rem; }
+.testimonials-grid {
+    display: grid; grid-template-columns: repeat(3, 1fr);
+    gap: 20px; max-width: 1200px; margin: 0 auto;
+}
+.testimonial-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 6px; padding: 2rem;
+    display: flex; flex-direction: column; gap: 1rem;
+    transition: border-color .3s, transform .3s, box-shadow .3s;
+    box-shadow: 0 2px 16px rgba(13,27,42,0.04);
+    position: relative; overflow: hidden;
+}
+.testimonial-card::before {
+    content: '';
+    position: absolute; top: 0; left: 0; right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, var(--gold), transparent);
+    transform: scaleX(0); transform-origin: center;
+    transition: .4s ease;
+}
+.testimonial-card:hover::before { transform: scaleX(1); }
+.testimonial-card:hover { border-color: var(--border-gold); transform: translateY(-4px); box-shadow: 0 16px 48px rgba(13,27,42,0.09); }
+.tcard-top { display: flex; justify-content: space-between; align-items: flex-start; }
+.tcard-quote { font-family: 'Cormorant Garamond', serif; font-size: 3rem; line-height: 0.7; color: var(--gold); opacity: 0.5; font-weight: 700; }
+.tcard-stars { color: var(--gold); font-size: 0.72rem; letter-spacing: 2px; }
+.tcard-text { color: var(--text); font-size: 0.88rem; line-height: 1.8; font-weight: 400; flex: 1; }
+.tcard-author {
+    display: flex; align-items: center; gap: 12px;
+    padding-top: 1rem; border-top: 1px solid var(--border);
+}
+.tcard-avatar {
+    width: 38px; height: 38px; border-radius: 50%;
+    background: var(--gold-glow);
+    border: 1px solid var(--border-gold);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 0.68rem; font-weight: 600;
+    color: var(--gold); letter-spacing: 0.05em; flex-shrink: 0;
+}
+.tcard-author strong { display: block; font-size: 0.85rem; color: var(--navy); font-weight: 600; }
+.tcard-author span { font-size: 0.74rem; color: var(--text-light); font-weight: 400; }
+
+/* ══ FOOTER */
+.footer {
+    background: var(--navy);
+    border-top: 1px solid rgba(201,168,76,0.15);
+    padding: 6rem 5vw 0;
+}
+.footer-top {
+    display: grid; grid-template-columns: 1.2fr 1.3fr 1fr;
+    gap: 5rem; padding-bottom: 5rem;
+    border-bottom: 1px solid rgba(201,168,76,0.1);
+}
+.footer-brand { display: flex; flex-direction: column; gap: 0.5rem; margin-bottom: 2rem; }
+.footer-logo { font-family: 'Cormorant Garamond', serif; font-size: 1.8rem; color: var(--gold); letter-spacing: 0.1em; font-weight: 600; }
+.footer-tagline { font-family: 'Cormorant Garamond', serif; font-size: 1rem; font-style: italic; color: rgba(255,255,255,0.28); line-height: 1.5; margin-top: 0.2rem; }
+
+.footer-newsletter .newsletter-title { font-family: 'Cormorant Garamond', serif; font-size: 1.25rem; color: #fff; font-weight: 500; margin-bottom: 0.5rem; }
+.footer-newsletter .newsletter-desc { font-size: 0.82rem; color: rgba(255,255,255,0.32); font-weight: 300; line-height: 1.7; margin-bottom: 1rem; }
+.newsletter-form { display: flex; gap: 8px; }
+.newsletter-input {
+    flex: 1; background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(201,168,76,0.2);
+    border-radius: 4px; padding: 0.7rem 1.2rem;
+    font-size: 0.82rem; font-family: 'DM Sans', sans-serif;
+    color: rgba(255,255,255,0.7); outline: none; transition: border-color .3s;
+}
+.newsletter-input::placeholder { color: rgba(255,255,255,0.24); }
+.newsletter-input:focus { border-color: var(--gold-mid); }
+.newsletter-btn {
+    padding: 0.7rem 1.3rem; font-size: 0.78rem;
+    border-radius: 4px; white-space: nowrap;
+    background: var(--gold); color: var(--navy);
+    font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase;
+    border: none; cursor: pointer; transition: .3s ease;
+}
+.newsletter-btn:hover { background: var(--gold-light); }
+.newsletter-note { font-size: 0.76rem; font-weight: 300; min-height: 1.2em; transition: color .3s; margin-top: 0.6rem; }
+
+.footer-social { display: flex; gap: 10px; margin-top: 1.5rem; }
+.social-link {
+    width: 36px; height: 36px; border-radius: 50%;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(201,168,76,0.15);
+    display: flex; align-items: center; justify-content: center;
+    transition: .3s ease; text-decoration: none;
+}
+.social-link:hover { background: var(--gold-glow); border-color: var(--gold-mid); }
+.social-link svg { width: 15px; height: 15px; stroke: rgba(255,255,255,0.4); fill: none; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; transition: stroke .3s; }
+.social-link:hover svg { stroke: var(--gold); }
+
+.footer-nav-group { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem; }
+.footer-nav-col h5 { font-size: 0.68rem; letter-spacing: 0.2em; text-transform: uppercase; color: var(--gold); font-weight: 500; margin-bottom: 1.2rem; }
+.footer-nav-col ul { list-style: none; display: flex; flex-direction: column; gap: 10px; }
+.footer-nav-col ul li a { font-size: 0.84rem; color: rgba(255,255,255,0.32); text-decoration: none; font-weight: 300; transition: color .3s; }
+.footer-nav-col ul li a:hover { color: rgba(255,255,255,0.8); }
+
+.footer-map-col { display: flex; flex-direction: column; gap: 1rem; }
+.map-title { font-size: 0.68rem; letter-spacing: 0.2em; text-transform: uppercase; color: var(--gold); font-weight: 500; }
+.map-container {
+    width: 100%; height: 180px; border-radius: 6px; overflow: hidden;
+    border: 1px solid rgba(201,168,76,0.2);
+    filter: grayscale(0.8) brightness(0.5) contrast(1.1);
+    transition: filter .4s;
+}
+.map-container:hover { filter: grayscale(0.2) brightness(0.7); }
+.map-info { display: flex; flex-direction: column; gap: 9px; margin-top: 0.5rem; }
+.map-info-item { display: flex; align-items: center; gap: 9px; color: rgba(255,255,255,0.32); font-size: 0.8rem; font-weight: 300; }
+.map-info-item svg { width: 13px; height: 13px; stroke: var(--gold); fill: none; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; flex-shrink: 0; }
+
+.footer-bottom {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 1.6rem 0; gap: 1rem; flex-wrap: wrap;
+}
+.footer-bottom p { font-size: 0.78rem; color: rgba(255,255,255,0.18); font-weight: 300; }
+.footer-bottom-links { display: flex; align-items: center; gap: 10px; }
+.footer-bottom-links a { font-size: 0.78rem; color: rgba(255,255,255,0.22); text-decoration: none; font-weight: 300; transition: color .3s; }
+.footer-bottom-links a:hover { color: var(--gold); }
+.footer-bottom-links span { color: rgba(255,255,255,0.12); font-size: 0.7rem; }
+
+/* ══ SCROLL ANIMATIONS */
+.fade-up { opacity: 0; transform: translateY(32px); transition: opacity .7s ease, transform .7s ease; }
+.fade-up.visible { opacity: 1; transform: translateY(0); }
+
+/* ══ RESPONSIVE */
+@media (max-width: 1100px) {
+    .services-grid { grid-template-columns: 1fr; }
+    .service-tile:nth-child(2n) { border-right: 1px solid var(--border); }
+    .service-tile:nth-child(n) { border-bottom: 1px solid var(--border); }
+    .service-tile:last-child { border-bottom: none; }
+    .footer-top { grid-template-columns: 1fr 1fr; }
+    .footer-map-col { grid-column: 1 / -1; }
+    .testimonials-grid { grid-template-columns: repeat(2, 1fr); }
+    .services-grid { grid-template-columns: repeat(2, 1fr); }
+    .service-tile:nth-child(3), .service-tile:nth-child(4) { border-bottom: none; }
+}
+@media (max-width: 900px) {
+    .aboutInner, .wcuContent { grid-template-columns: 1fr; gap: 3rem; }
+    .wcuImageHolder { height: 320px; order: -1; }
+    .services-header { flex-direction: column; align-items: flex-start; gap: 1rem; }
+}
+@media (max-width: 768px) {
+    .mainHeader { padding: 1.2rem 1.5rem; }
+    .mainHeader nav, .nav-cta { display: none; }
+    .menu { display: flex; }
+    .services-grid { grid-template-columns: 1fr; gap: 8px; }
+    .service-tile{
+        background: none;
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+    }
+    .bottomCards { grid-template-columns: repeat(2, 1fr); }
+    .footer-top { grid-template-columns: 1fr; gap: 2.5rem; }
+    .footer-nav-group { grid-template-columns: repeat(3, 1fr); }
+}
+@media (max-width: 600px) {
+    .mainHeader{
+        background: none;
+    }
+    .hero { padding-bottom: 0; }
+    .servicesSection {
+        background: linear-gradient(to bottom, var(--bg-card) 40%, transparent),url("https://images.unsplash.com/photo-1614683361837-963af4039d58?q=80&w=637&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D") no-repeat center/cover;
+        background-attachment: fixed;
+    padding: 4rem 5vw 8rem;
+}
+    .bottomCards { position: static; transform: none; display: flex; flex-direction: column; grid-template-columns: 1fr; gap: 4px; padding: 1rem 3rem;}
+    .heroTitle { font-size: 2.8rem; }
+    .dividerSlider { height: 380px; }
+    .slide-caption { white-space: normal; width: 85%; }
+    .testimonials-grid { grid-template-columns: 1fr; }
+    .footer-nav-group { grid-template-columns: 1fr 1fr; }
+    .newsletter-form { flex-direction: column; }
+    .about-img-accent { display: none; }
+}
+</style>
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<nav class="sidebar" id="sidebar">
+    <div class="close-btn" id="closeBtn"><span></span><span></span></div>
+    <ul class="nav-links">
+        <li>Services</li>
+        <li>Portfolio</li>
+        <li>About</li>
+        <li>Contact</li>
+    </ul>
+</nav>
+
+<!-- WCU VERTICAL SIDENAV -->
+<div class="wcu-sidenav hidden" id="wcuSidenav">
+    <div class="wcu-nav-item active" onclick="setChoice(1)" tabindex="0">
+        <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+        <span class="wcu-tooltip">Residential Design</span>
+    </div>
+    <div class="wcu-nav-item" onclick="setChoice(2)" tabindex="0">
+        <svg viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg>
+        <span class="wcu-tooltip">Interior Design</span>
+    </div>
+    <div class="wcu-nav-item" onclick="setChoice(3)" tabindex="0">
+        <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+        <span class="wcu-tooltip">Urban Planning</span>
+    </div>
+    <div class="wcu-nav-item" onclick="setChoice(4)" tabindex="0">
+        <svg viewBox="0 0 24 24"><path d="M2 20h20M4 20V10l8-6 8 6v10"/><path d="M9 20v-5h6v5"/></svg>
+        <span class="wcu-tooltip">Restoration</span>
+    </div>
+</div>
+
+<!-- HERO -->
+<section class="hero">
+    <div class="backgroundImageHolder"></div>
+    <header class="mainHeader">
+        <div class="logo-wrap">
+            <img src="modi-logo.png" alt="logo">
+        </div>
+        <nav>
+            <ul class="nav-links">
+                <li>Services</li><li>Portfolio</li><li>About</li><li>Journal</li>
+            </ul>
+        </nav>
+        <button class="nav-cta">Get a Consultation</button>
+        <div class="menu" id="menu"><div></div><div></div><div></div></div>
+    </header>
+
+    <div class="heroContent">
+        <div class="heroEyebrow">Architecture &amp; Design Excellence</div>
+        <h1 class="heroTitle">
+            Spaces Built for<br>
+            <em>Purpose</em> &amp; <span class="ul">Precision</span>
+        </h1>
+        <p class="heroTxt">We are a team of engineers passionate and dedicated to creating spaces that reflect individuality and purpose.</p>
+    </div>
+
+    <div class="heroCta">
+        <button class="btn btn-primary">Explore Our Work</button>
+        <button class="btn btn-secondary">Our Services</button>
+    </div>
+
+    <div class="bottomCards" id="bottomCards">
+        <div class="card">
+            <div class="card-num">
+                <img src="restoration.png" alt="restoration icon">
+            </div>
+            <h3>Restoration</h3>
+            <p>Breathing new life into historical structures with precision and respect.</p>
+        </div>
+        <div class="card">
+            <div class="card-num">
+                <img src="residential-design.png" alt="design icon">
+            </div>
+            <h3>Residential Design</h3>
+            <p>Custom homes crafted to reflect your vision and lifestyle.</p>
+        </div>
+        <div class="card">
+            <div class="card-num">
+                <img src="interior-design.png" alt="interior design icon">
+            </div>
+            <h3>Interior Design</h3>
+            <p>Interiors that balance form, function, and enduring aesthetic.</p>
+        </div>
+        <div class="card">
+            <div class="card-num">
+                <img src="urban-planning.png" alt="urban planning icon">
+            </div>
+            <h3>Urban Planning</h3>
+            <p>Shaping communities and cities with foresight and purpose.</p>
+        </div>
+    </div>
+</section>
+
+<!-- SERVICES -->
+<section class="servicesSection" id="services">
+    <div class="services-header fade-up">
+        <div>
+            <span class="section-eyebrow">What We Do</span>
+            <h2 class="section-title">Our Services</h2>
+            <p class="section-intro">From the blueprint to the final finish — every project we take on is an expression of engineering mastery and creative vision.</p>
+        </div>
+        <button class="button" style="margin-bottom: 0.5rem;"><span>View All Projects</span></button>
+    </div>
+
+    <div class="services-grid fade-up">
+        <div class="service-tile">
+            <span class="st-number">01</span>
+            <div class="st-icon">
+                <svg viewBox="0 0 24 24"><path d="M2 20h20M4 20V10l8-6 8 6v10"/><path d="M9 20v-5h6v5"/></svg>
+            </div>
+            <div class="st-tag">Project Type</div>
+            <h3>Restoration Projects</h3>
+            <p>We meticulously restore heritage buildings and aging structures, preserving their historical character while integrating modern standards of safety, efficiency, and beauty. Every project is a story honoured.</p>
+            <a class="st-arrow" href="#">Explore Projects <svg viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg></a>
+        </div>
+        <div class="service-tile">
+            <span class="st-number">02</span>
+            <div class="st-icon">
+                <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+            </div>
+            <div class="st-tag">Project Type</div>
+            <h3>Residential Design &amp; Construction</h3>
+            <p>Bespoke homes conceived from the ground up — where structural engineering meets personal expression. We guide you from concept through construction, delivering homes that exceed expectation.</p>
+            <a class="st-arrow" href="#">Explore Projects <svg viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg></a>
+        </div>
+        <div class="service-tile">
+            <span class="st-number">03</span>
+            <div class="st-icon">
+                <svg viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg>
+            </div>
+            <div class="st-tag">Project Type</div>
+            <h3>Interior Design</h3>
+            <p>Spaces that speak without words. Our interior design practice curates environments where materiality, light, proportion, and detail converge into something entirely your own — refined, livable, lasting.</p>
+            <a class="st-arrow" href="#">Explore Projects <svg viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg></a>
+        </div>
+        <div class="service-tile">
+            <span class="st-number">04</span>
+            <div class="st-icon">
+                <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+            </div>
+            <div class="st-tag">Project Type</div>
+            <h3>Urban Planning</h3>
+            <p>We shape the way communities grow. Through strategic land use, infrastructure analysis, and sustainable master planning, we create cities and neighbourhoods designed for people — both now and for generations ahead.</p>
+            <a class="st-arrow" href="#">Explore Projects <svg viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg></a>
+        </div>
+    </div>
+</section>
+
+<!-- WHY CHOOSE US -->
+<section class="whyChooseUs" id="whyChooseUs">
+    <div class="wcu-section-header fade-up">
+        <span class="section-eyebrow">Our Approach</span>
+        <h2 class="section-title">Why Choose Modi?</h2>
+        <p class="section-intro">We don't just design buildings — we engineer experiences, shaped by your individuality and driven by our commitment to excellence.</p>
+    </div>
+
+    <div class="wcuContent">
+        <div class="wcuImageHolder" id="wcuImageHolder" data-active="1">
+            <img src="https://images.unsplash.com/photo-1600585154340-be6161a56a0c?q=80&w=1170&auto=format&fit=crop" alt="Residential design" class="wcuImage">
+            <img src="https://images.unsplash.com/photo-1618221195710-dd6b41faaea6?q=80&w=1100&auto=format&fit=crop" alt="Interior design" class="wcuImage">
+            <img src="https://images.unsplash.com/photo-1486325212027-8081e485255e?q=80&w=1170&auto=format&fit=crop" alt="Urban planning" class="wcuImage">
+        </div>
+
+        <div>
+            <div class="wcuTextPanel active" id="wcuTextOne">
+                <span class="wcuTextTag">Residential Design</span>
+                <h3>Homes Built Around You</h3>
+                <p>Every residential project begins with listening. We immerse ourselves in your lifestyle, aspirations, and aesthetic sensibility before a single line is drawn.</p>
+                <ul class="wcuFeatureList">
+                    <li>Fully custom design process from concept to handover</li>
+                    <li>Structural engineering and architectural design under one roof</li>
+                    <li>Sustainable materials and energy-efficient systems integrated by default</li>
+                    <li>Transparent timelines and dedicated project management throughout</li>
+                </ul>
+            </div>
+            <div class="wcuTextPanel" id="wcuTextTwo">
+                <span class="wcuTextTag">Interior Design</span>
+                <h3>Interiors as Individual as You</h3>
+                <p>Our interior design philosophy is rooted in restraint and intention. We create spaces that feel considered — where every element earns its place.</p>
+                <ul class="wcuFeatureList">
+                    <li>Bespoke furniture sourcing and custom fabrication</li>
+                    <li>Lighting design that transforms mood and perception of space</li>
+                    <li>Material selection guided by longevity, texture, and character</li>
+                    <li>Full 3D visualisation before any commitment is made</li>
+                </ul>
+            </div>
+            <div class="wcuTextPanel" id="wcuTextThree">
+                <span class="wcuTextTag">Urban Planning</span>
+                <h3>Cities Shaped with Purpose</h3>
+                <p>We approach urban planning as a long-horizon discipline — thinking decades ahead, designing frameworks that absorb growth while preserving quality of life.</p>
+                <ul class="wcuFeatureList">
+                    <li>Master planning for residential, mixed-use and commercial zones</li>
+                    <li>Community engagement frameworks embedded in every project</li>
+                    <li>Environmental impact assessments and green corridor integration</li>
+                    <li>Regulatory compliance and municipal coordination handled end-to-end</li>
+                </ul>
+            </div>
+            <div class="wcuTextPanel" id="wcuTextFour">
+                <span class="wcuTextTag">Restoration Projects</span>
+                <h3>Legacy Preserved, Future Ready</h3>
+                <p>Historical structures carry irreplaceable stories. Our restoration team combines archival research with modern engineering to honour what was while preparing it for what's next.</p>
+                <ul class="wcuFeatureList">
+                    <li>Heritage assessment and archival documentation from day one</li>
+                    <li>Sympathetic material matching using traditional craftsmanship</li>
+                    <li>Structural reinforcement with minimal visual intrusion</li>
+                    <li>Full compliance with national heritage and conservation guidelines</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ABOUT -->
+<section class="aboutSection" id="about">
+    <div class="aboutInner">
+        <div class="aboutText fade-up">
+            <span class="section-eyebrow">Our Story</span>
+            <h2 class="section-title" style="text-align:left;">Built on Passion,<br><em style="font-style:italic;color:var(--gold);">Driven by Purpose</em></h2>
+            <p class="aboutIntro">We are a team of engineers passionate and dedicated to creating spaces that reflect individuality and purpose. Our holistic approach ensures every design integrates aesthetics and sustainability.</p>
+
+            <div class="aboutStats">
+                <div class="stat"><span class="stat-num">12+</span><span class="stat-label">Years of Practice</span></div>
+                <div class="stat-divider"></div>
+                <div class="stat"><span class="stat-num">180+</span><span class="stat-label">Projects Delivered</span></div>
+                <div class="stat-divider"></div>
+                <div class="stat"><span class="stat-num">96%</span><span class="stat-label">Client Retention</span></div>
+            </div>
+
+            <p class="aboutBody">Our multidisciplinary team brings together architects, civil engineers, interior designers, and urban planners — collaborating under one roof to deliver seamless, holistic outcomes for every client we serve.</p>
+            <button class="button" style="margin-top:2rem;"><span>Meet Our Team</span></button>
+        </div>
+
+        <div class="aboutVisual fade-up">
+            <div class="about-gold-line"></div>
+            <div class="about-badge">
+                <span class="badge-num">A+</span>
+                <span class="badge-label">Design<br>Certified</span>
+            </div>
+            <img src="https://images.unsplash.com/photo-1600585154340-be6161a56a0c?q=80&w=900&auto=format&fit=crop" alt="Modern architecture" class="about-img-main">
+            <img src="https://images.unsplash.com/photo-1618221195710-dd6b41faaea6?q=80&w=600&auto=format&fit=crop" alt="Interior" class="about-img-accent">
+        </div>
+    </div>
+</section>
+
+<!-- DIVIDER SLIDER -->
+<section class="dividerSlider" id="gallery">
+    <div class="dividerSlider-track" id="dividerTrack">
+        <div class="dividerSlide"><img src="https://images.unsplash.com/photo-1600585154340-be6161a56a0c?q=80&w=1400&auto=format&fit=crop" alt="Residential"><div class="slide-caption"><span>Residential Excellence</span><p>Homes that embody vision and craft</p><div class="slide-line"></div></div></div>
+        <div class="dividerSlide"><img src="https://images.unsplash.com/photo-1618221195710-dd6b41faaea6?q=80&w=1400&auto=format&fit=crop" alt="Interior"><div class="slide-caption"><span>Interior Mastery</span><p>Every detail placed with intention</p><div class="slide-line"></div></div></div>
+        <div class="dividerSlide"><img src="https://images.unsplash.com/photo-1486325212027-8081e485255e?q=80&w=1400&auto=format&fit=crop" alt="Urban"><div class="slide-caption"><span>Urban Futures</span><p>Cities shaped for generations ahead</p><div class="slide-line"></div></div></div>
+        <div class="dividerSlide"><img src="https://images.unsplash.com/photo-1580587771525-78b9dba3b914?q=80&w=1400&auto=format&fit=crop" alt="Architecture"><div class="slide-caption"><span>Architectural Precision</span><p>Structure as beautiful as it is sound</p><div class="slide-line"></div></div></div>
+        <div class="dividerSlide"><img src="https://images.unsplash.com/photo-1504307651254-35680f356dfd?q=80&w=1400&auto=format&fit=crop" alt="Restoration"><div class="slide-caption"><span>Restoration &amp; Legacy</span><p>Honouring the past, building the future</p><div class="slide-line"></div></div></div>
+    </div>
+    <div class="slider-dots" id="dividerDots">
+        <button class="dot active" onclick="goToSlide(0)"></button>
+        <button class="dot" onclick="goToSlide(1)"></button>
+        <button class="dot" onclick="goToSlide(2)"></button>
+        <button class="dot" onclick="goToSlide(3)"></button>
+        <button class="dot" onclick="goToSlide(4)"></button>
+    </div>
+    <button class="slider-arrow slider-arrow-prev" id="dividerPrev"><svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg></button>
+    <button class="slider-arrow slider-arrow-next" id="dividerNext"><svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg></button>
+</section>
+
+<!-- TESTIMONIALS -->
+<section class="testimonials" id="testimonials">
+    <div class="section-header fade-up" style="max-width:1200px;margin:0 auto 3.5rem;">
+        <span class="section-eyebrow">Client Voices</span>
+        <h2 class="section-title">What Our Clients Say</h2>
+        <p class="section-intro">The relationships we build are as enduring as the structures we create.</p>
+    </div>
+
+    <div class="testimonials-grid fade-up">
+        <div class="testimonial-card">
+            <div class="tcard-top"><div class="tcard-quote">&#8220;</div><div class="tcard-stars">★★★★★</div></div>
+            <p class="tcard-text">Modi Realtors transformed our vision into a home that exceeded every expectation. Their engineering rigour and design sensibility are genuinely rare to find together.</p>
+            <div class="tcard-author"><div class="tcard-avatar">KM</div><div><strong>Kamau M.</strong><span>Residential client, Nairobi</span></div></div>
+        </div>
+        <div class="testimonial-card">
+            <div class="tcard-top"><div class="tcard-quote">&#8220;</div><div class="tcard-stars">★★★★★</div></div>
+            <p class="tcard-text">The interior design team worked with extraordinary attention to detail. Our office space now reflects exactly who we are as a company — bold, considered, and built to last.</p>
+            <div class="tcard-author"><div class="tcard-avatar">AN</div><div><strong>Amina N.</strong><span>Commercial interior client</span></div></div>
+        </div>
+        <div class="testimonial-card">
+            <div class="tcard-top"><div class="tcard-quote">&#8220;</div><div class="tcard-stars">★★★★★</div></div>
+            <p class="tcard-text">Their urban planning team navigated a complex multi-stakeholder project with exceptional professionalism. The outcome speaks for itself — a community that actually works.</p>
+            <div class="tcard-author"><div class="tcard-avatar">DW</div><div><strong>David W.</strong><span>Municipal planning partner</span></div></div>
+        </div>
+
+    </div>
+</section>
+
+<!-- FOOTER -->
+<footer class="footer" id="contact">
+    <div class="footer-top">
+        <div class="footer-left">
+            <div class="footer-brand">
+                <span class="footer-logo">MODI</span>
+                <p class="footer-tagline">Engineering spaces that reflect<br>individuality and purpose.</p>
+            </div>
+            <div class="footer-newsletter">
+                <h4 class="newsletter-title">Stay Informed</h4>
+                <p class="newsletter-desc">Project insights, industry thinking, and studio news — delivered to your inbox with intention.</p>
+                <div class="newsletter-form">
+                    <input type="email" placeholder="Your email address" class="newsletter-input" id="newsletterEmail">
+                    <button class="newsletter-btn" onclick="handleSubscribe()">Subscribe</button>
+                </div>
+                <p class="newsletter-note" id="subscribeMsg"></p>
+            </div>
+            <div class="footer-social">
+                <a href="#" class="social-link" aria-label="LinkedIn"><svg viewBox="0 0 24 24"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"/><rect x="2" y="9" width="4" height="12"/><circle cx="4" cy="4" r="2"/></svg></a>
+                <a href="#" class="social-link" aria-label="Instagram"><svg viewBox="0 0 24 24"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg></a>
+                <a href="#" class="social-link" aria-label="Twitter/X"><svg viewBox="0 0 24 24"><path d="M23 3a10.9 10.9 0 0 1-3.14 1.53 4.48 4.48 0 0 0-7.86 3v1A10.66 10.66 0 0 1 3 4s-4 9 5 13a11.64 11.64 0 0 1-7 2c9 5 20 0 20-11.5a4.5 4.5 0 0 0-.08-.83A7.72 7.72 0 0 0 23 3z"/></svg></a>
+                <a href="#" class="social-link" aria-label="Facebook"><svg viewBox="0 0 24 24"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg></a>
+            </div>
+        </div>
+
+        <div class="footer-nav-group">
+            <div class="footer-nav-col"><h5>Services</h5><ul><li><a href="#">Restoration</a></li><li><a href="#">Residential Design</a></li><li><a href="#">Construction</a></li><li><a href="#">Interior Design</a></li><li><a href="#">Urban Planning</a></li></ul></div>
+            <div class="footer-nav-col"><h5>Company</h5><ul><li><a href="#">About Us</a></li><li><a href="#">Our Team</a></li><li><a href="#">Careers</a></li><li><a href="#">Journal</a></li><li><a href="#">Awards</a></li></ul></div>
+            <div class="footer-nav-col"><h5>Support</h5><ul><li><a href="#">Contact Us</a></li><li><a href="#">Get a Quote</a></li><li><a href="#">Project Enquiry</a></li><li><a href="#">Partnerships</a></li><li><a href="#">Privacy Policy</a></li></ul></div>
+        </div>
+
+        <div class="footer-map-col">
+            <h5 class="map-title">Find Us</h5>
+            <div class="map-container">
+                <iframe title="Modi Realtors Location" src="https://www.openstreetmap.org/export/embed.html?bbox=36.78,-1.30,36.88,-1.25&layer=mapnik" style="border:0;width:100%;height:100%;" loading="lazy" allowfullscreen></iframe>
+            </div>
+            <div class="map-info">
+                <div class="map-info-item"><svg viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg><span>Nairobi, Kenya</span></div>
+                <div class="map-info-item"><svg viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12 19.79 19.79 0 0 1 1.63 3.41 2 2 0 0 1 3.6 1.21h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L7.91 9a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg><span>+254 700 000 000</span></div>
+                <div class="map-info-item"><svg viewBox="0 0 24 24"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg><span>hello@modirealtors.co.ke</span></div>
+            </div>
+        </div>
+    </div>
+    <div class="footer-bottom">
+        <p>&copy; 2025 Modi Realtors. All rights reserved.</p>
+        <div class="footer-bottom-links">
+            <a href="#">Terms of Service</a><span>·</span>
+            <a href="#">Privacy Policy</a><span>·</span>
+            <a href="#">Accessibility</a>
+        </div>
+    </div>
+</footer>
+
+<script>
+/* SIDEBAR */
+const menu = document.getElementById('menu');
+const sidebar = document.getElementById('sidebar');
+const closeBtn = document.getElementById('closeBtn');
+menu.onclick = () => sidebar.classList.toggle('active');
+closeBtn.onclick = () => sidebar.classList.remove('active');
+
+/* SCROLL ANIMATIONS */
+const observer = new IntersectionObserver((entries) => {
+    entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
+}, { threshold: 0.1 });
+document.querySelectorAll('.fade-up').forEach(el => observer.observe(el));
+
+/* CARDS */
+const cardObserver = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+        if (e.isIntersecting) e.target.querySelectorAll('.card').forEach(c => c.classList.add('visible'));
+    });
+}, { threshold: 0.15 });
+const bc = document.getElementById('bottomCards');
+if (bc) cardObserver.observe(bc);
+
+/* WCU SIDENAV VISIBILITY */
+const wcuSection = document.getElementById('whyChooseUs');
+const wcuSidenav = document.getElementById('wcuSidenav');
+const wcuObserver = new IntersectionObserver((entries) => {
+    entries.forEach(e => { wcuSidenav.classList.toggle('hidden', !e.isIntersecting); });
+}, { threshold: 0.1 });
+wcuObserver.observe(wcuSection);
+
+/* WCU TABS */
+function setChoice(num) {
+    document.querySelectorAll('.wcu-nav-item').forEach((c, i) => c.classList.toggle('active', i + 1 === num));
+    document.getElementById('wcuImageHolder').dataset.active = num;
+    ['wcuTextOne','wcuTextTwo','wcuTextThree','wcuTextFour'].forEach((id, i) => {
+        const panel = document.getElementById(id);
+        if (!panel) return;
+        if (i + 1 === num) {
+            panel.style.display = 'block';
+            panel.classList.add('entering');
+            requestAnimationFrame(() => requestAnimationFrame(() => {
+                panel.classList.remove('entering');
+                panel.classList.add('active');
+            }));
+        } else {
+            panel.classList.remove('active');
+            setTimeout(() => { panel.style.display = 'none'; }, 100);
+        }
+    });
+}
+setChoice(1);
+
+/* SLIDER */
+let dividerCurrent = 0;
+const dividerTotal = 5;
+let dividerTimer;
+
+function goToSlide(index) {
+    dividerCurrent = (index + dividerTotal) % dividerTotal;
+    document.getElementById('dividerTrack').style.transform = `translateX(-${dividerCurrent * 100}%)`;
+    document.querySelectorAll('#dividerDots .dot').forEach((d, i) => d.classList.toggle('active', i === dividerCurrent));
+    resetDividerTimer();
+}
+function resetDividerTimer() {
+    clearInterval(dividerTimer);
+    dividerTimer = setInterval(() => goToSlide(dividerCurrent + 1), 5000);
+}
+document.getElementById('dividerNext').onclick = () => goToSlide(dividerCurrent + 1);
+document.getElementById('dividerPrev').onclick = () => goToSlide(dividerCurrent - 1);
+resetDividerTimer();
+
+/* NEWSLETTER */
+function handleSubscribe() {
+    const email = document.getElementById('newsletterEmail').value.trim();
+    const msg = document.getElementById('subscribeMsg');
+    if (!email || !email.includes('@')) {
+        msg.textContent = 'Please enter a valid email address.';
+        msg.style.color = '#c05050'; return;
+    }
+    msg.textContent = 'Thank you — welcome to the Modi community.';
+    msg.style.color = 'var(--gold)';
+    document.getElementById('newsletterEmail').value = '';
+}
+</script>
+</body>
+</html>
